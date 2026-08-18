@@ -10,7 +10,13 @@ This project implements a non-AI document parsing pipeline for medical PDFs.
 - Exports a clean structure for downstream medical systems
 
 ## Structure
-- medical_pipeline.py: main parsing and chunking logic
+- medical_pipeline.py: compatibility facade and command-line entry point
+- medical_system/text_cleaning.py: page and document text cleaning
+- medical_system/extraction.py: PDF text, title, and table extraction
+- medical_system/chunking.py: text chunking and page metadata mapping
+- medical_system/metadata.py: output metadata construction
+- medical_system/pipeline.py: main document parsing workflow
+- medical_system/__init__.py: public package exports
 - tests/test_medical_pipeline.py: validation tests
 
 ## Install
