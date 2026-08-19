@@ -1,0 +1,13 @@
+python-dotenv==1.2.2
+fastapi==0.115.12
+uvicorn==0.34.3
+alembic
+asyncpg
+pydantic
+pydantic[email]
+psycopg2-binary
+pydantic
+pydantic-settings
+alembic
+bcrypt
+python-jose[cryptography]
