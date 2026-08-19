@@ -1,40 +1,31 @@
-# Medical-System
+# 🏥 Clinical AI Medical RAG System
 
-This project implements a non-AI document parsing pipeline for medical PDFs.
+> **An End-to-End, Open-Source, Evidence-Grounded Medical Question Answering & Evaluation Framework**
 
-## What it does
-- Parses PDF text and tables
-- Removes noisy formatting and whitespace issues
-- Splits long text into overlapping chunks
-- Builds JSON-ready metadata
-- Exports a clean structure for downstream medical systems
+A modular **Medical Retrieval-Augmented Generation (RAG)** system designed for answering clinical questions using trusted medical documents and clinical practice guidelines.
 
-## Structure
-- main.py: command-line entry point
-- data-pipline/text_cleaning.py: page and document text cleaning
-- data-pipline/extraction.py: PDF text, title, and table extraction
-- data-pipline/chunking.py: text chunking and page metadata mapping
-- data-pipline/metadata.py: output metadata construction
-- data-pipline/pipeline.py: main document parsing workflow
-- data-pipline/__init__.py: public package exports
-- source/: input medical PDF files
+The system combines:
 
-## Install
-```bash
-pip install -r requirements.txt
-```
+- Medical document parsing and preprocessing
+- Semantic and lexical retrieval
+- Vector database search
+- Reranking
+- Evidence-grounded prompt construction
+- Open-source LLM generation
+- Citation and safety guardrails
+- Evaluation of retrieval and generation quality
+- FastAPI backend and PostgreSQL persistence
 
-## Run
-```bash
-python main.py
-```
+---
 
-## Output shape
-The script returns a JSON-like Python dictionary with:
-- source
-- content.raw_text
-- content.chunks
-- content.tables
-- metadata
+# 🎯 Project Goal
 
-This pipeline intentionally ignores scanned images/diagrams because they are not machine-readable text without OCR. For image-heavy PDFs, add OCR later as a separate stage.
+The goal of this project is to build a medical question-answering system that provides **evidence-grounded answers** based on trusted medical documents rather than relying solely on the language model's internal knowledge.
+
+The system follows the principle:
+
+> **Retrieve → Rerank → Construct Context → Generate → Evaluate**
+
+The generated answer should be supported by the retrieved medical evidence and include references to the source material whenever applicable.
+
+---
