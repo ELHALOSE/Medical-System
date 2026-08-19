@@ -13,19 +13,5 @@ dependencies = [
     "rank_bm25>=0.2.2",
 ]
 
-[project.optional-dependencies]
-dev = ["pytest>=8.0.0"]
-
-[project.scripts]
-retrieval-build = "cli.build_index:build_index"
-retrieval-query = "cli.query_cli:_parse_args"
-
 [tool.setuptools.packages.find]
 include = ["retrieval*", "cli*"]
-
-[tool.pytest.ini_options]
-markers = [
-    "integration: slow tests that download and run real models (deselect with '-m \"not integration\"')",
-]
-addopts = "-m \"not integration\""
-testpaths = ["tests"]

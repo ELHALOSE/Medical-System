@@ -1,10 +1,10 @@
 """
 schemas.py
 ----------
-The `Chunk` shape here is the integration contract with the chunking stage
-(a teammate's branch): it must match the fields written to `chunks.jsonl`
-by the cleaning/chunking pipeline exactly. If that schema changes, this is
-the one place to update on the retrieval side.
+The `Chunk` shape here is the integration contract with the chunking stage.
+It matches the `chunk_details` entries in the output.json produced by the
+cleaning/chunking pipeline. If that schema changes, this is the one place
+to update on the retrieval side.
 """
 
 from __future__ import annotations
@@ -18,49 +18,61 @@ from pathlib import Path
 class Chunk:
     chunk_id: str
     text: str
-    contextualized_text: str  # heading breadcrumb + text — what gets embedded
-    headings: list[str] = field(default_factory=list)
-    page_numbers: list[int] = field(default_factory=list)
-    doc_name: str = ""
-    char_count: int = 0
-    token_count: int = 0
+    title: str = ""
+    page_start: int = 0
+    page_end: int = 0
 
     @classmethod
     def from_dict(cls, data: dict) -> "Chunk":
-        return cls(**{f: data[f] for f in cls.__dataclass_fields__ if f in data})
+        return cls(
+            chunk_id=str(data["chunk_id"]),
+            text=data["text"],
+            title=data.get("title", ""),
+            page_start=data.get("page_start", 0),
+            page_end=data.get("page_end", 0),
+        )
 
     def to_dict(self) -> dict:
         return {
             "chunk_id": self.chunk_id,
             "text": self.text,
-            "contextualized_text": self.contextualized_text,
-            "headings": self.headings,
-            "page_numbers": self.page_numbers,
-            "doc_name": self.doc_name,
-            "char_count": self.char_count,
-            "token_count": self.token_count,
+            "title": self.title,
+            "page_start": self.page_start,
+            "page_end": self.page_end,
         }
 
 
-def load_chunks_jsonl(path: str | Path) -> list[Chunk]:
-    """Load the chunking stage's output. Raises a clear error on schema drift
-    rather than silently dropping fields."""
+def load_chunks(path: str | Path) -> list[Chunk]:
+    """Load chunks from the chunking pipeline's output.json.
+
+    Expects a JSON file with structure:
+        { "content": { "chunk_details": [ {...}, ... ] } }
+    """
     path = Path(path)
     if not path.exists():
         raise FileNotFoundError(
-            f"{path} not found - run the chunking pipeline first, or check "
-            "you've pulled the latest chunks.jsonl from that branch."
+            f"{path} not found - run the chunking pipeline first."
         )
 
-    chunks = []
     with path.open(encoding="utf-8") as f:
-        for line_no, line in enumerate(f, start=1):
-            if not line.strip():
-                continue
-            try:
-                chunks.append(Chunk.from_dict(json.loads(line)))
-            except (KeyError, TypeError, json.JSONDecodeError) as e:
-                raise ValueError(f"{path}:{line_no} does not match the Chunk schema: {e}") from e
+        data = json.load(f)
+
+    try:
+        chunk_details = data["content"]["chunk_details"]
+    except (KeyError, TypeError) as e:
+        raise ValueError(
+            f"{path} does not have the expected structure "
+            "(content.chunk_details): {e}"
+        ) from e
+
+    chunks = []
+    for i, item in enumerate(chunk_details):
+        try:
+            chunks.append(Chunk.from_dict(item))
+        except (KeyError, TypeError) as e:
+            raise ValueError(
+                f"{path}: chunk_details[{i}] does not match the Chunk schema: {e}"
+            ) from e
 
     if not chunks:
         raise ValueError(f"{path} contained no chunks")

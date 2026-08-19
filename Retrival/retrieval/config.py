@@ -18,8 +18,10 @@ def _env_int(name: str, default: int) -> int:
 
 @dataclass(frozen=True)
 class RetrievalConfig:
+    # --- Model cache (download once, reuse forever) ---
+    model_cache_dir: str = os.getenv("MODEL_CACHE_DIR", "./models")
+
     # --- Embedding ---
-    # Domain-tuned PubMedBERT embeddings; drop-in sentence-transformers model.
     embedding_model_id: str = os.getenv(
         "EMBEDDING_MODEL_ID", "NeuML/pubmedbert-base-embeddings"
     )
@@ -30,14 +32,15 @@ class RetrievalConfig:
 
     # --- Search (BM25 + RRF fusion) ---
     bm25_index_path: str = os.getenv("BM25_INDEX_PATH", "./data/bm25_index.pkl")
-    rrf_k: int = _env_int("RRF_K", 60)          # RRF smoothing constant
-    candidate_pool: int = _env_int("CANDIDATE_POOL", 20)  # pre-rerank shortlist size
+    rrf_k: int = _env_int("RRF_K", 60)
+    candidate_pool: int = _env_int("CANDIDATE_POOL", 20)
 
     # --- Reranker ---
     reranker_model_id: str = os.getenv("RERANKER_MODEL_ID", "BAAI/bge-reranker-v2-m3")
 
     # --- Output ---
     top_k: int = _env_int("TOP_K", 5)
+    output_path: str = os.getenv("RETRIEVAL_OUTPUT", "./retrieval_output.json")
 
 
 DEFAULT_CONFIG = RetrievalConfig()

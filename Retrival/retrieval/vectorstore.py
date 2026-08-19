@@ -2,9 +2,8 @@
 vectorstore.py
 --------------
 Thin wrapper around a persistent Chroma collection. Stores only scalar
-metadata (Chroma's constraint) - the full Chunk objects live in memory /
-chunks.jsonl on the caller's side; this store just does id <-> vector <->
-lightweight-metadata lookups.
+metadata (Chroma's constraint) - the full Chunk objects live in memory;
+this store just does id <-> vector <-> lightweight-metadata lookups.
 """
 
 from __future__ import annotations
@@ -42,9 +41,9 @@ class VectorStore:
             documents=[c.text for c in chunks],
             metadatas=[
                 {
-                    "headings": " > ".join(c.headings),
-                    "page_numbers": ",".join(map(str, c.page_numbers)),
-                    "doc_name": c.doc_name,
+                    "title": c.title,
+                    "page_start": c.page_start,
+                    "page_end": c.page_end,
                 }
                 for c in chunks
             ],

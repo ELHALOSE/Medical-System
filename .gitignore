@@ -16,3 +16,16 @@ env/
 *.log
 
 .DS_Store
+
+*.pyc
+
+data/chroma_db/
+
+data/*.pkl
+
+*.egg-info/
+
+models/
+retrieval_output.json
+
+.env

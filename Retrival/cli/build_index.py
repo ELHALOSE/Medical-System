@@ -1,11 +1,11 @@
 """
 build_index.py
 ---------------
-Run once (and whenever chunks.jsonl changes) to embed all chunks and build
+Run once (and whenever output.json changes) to embed all chunks and build
 both indices that HybridSearcher needs at query time.
 
 Usage:
-    python -m cli.build_index --chunks-path ../chunking/output/chunks.jsonl
+    python -m cli.build_index --chunks-path output.json
 """
 
 from __future__ import annotations
@@ -15,23 +15,30 @@ import sys
 
 from retrieval.config import RetrievalConfig
 from retrieval.embedding import Embedder
-from retrieval.schemas import load_chunks_jsonl
+from retrieval.schemas import load_chunks
 from retrieval.search import BM25Index
 from retrieval.vectorstore import VectorStore
 
 
+def _embedding_text(chunk) -> str:
+    """Combine title and text for richer embeddings."""
+    if chunk.title:
+        return f"{chunk.title}\n{chunk.text}"
+    return chunk.text
+
+
 def build_index(chunks_path: str, config: RetrievalConfig) -> None:
     print(f"[1/4] Loading chunks from {chunks_path}")
-    chunks = load_chunks_jsonl(chunks_path)
+    chunks = load_chunks(chunks_path)
     print(f"       {len(chunks)} chunks")
 
     print(f"[2/4] Embedding with {config.embedding_model_id}")
-    embedder = Embedder(config.embedding_model_id)
-    embeddings = embedder.embed([c.contextualized_text for c in chunks], show_progress=True)
+    embedder = Embedder(config.embedding_model_id, cache_dir=config.model_cache_dir)
+    embeddings = embedder.embed([_embedding_text(c) for c in chunks], show_progress=True)
 
     print(f"[3/4] Indexing into Chroma at {config.chroma_path}")
     vector_store = VectorStore(config.chroma_path, config.collection_name)
-    vector_store.reset()  # avoid stale chunks from a previous reindex
+    vector_store.reset()
     vector_store.upsert(chunks, embeddings)
     print(f"       {vector_store.count()} vectors indexed")
 
@@ -47,7 +54,7 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument(
         "--chunks-path",
         required=True,
-        help="Path to chunks.jsonl produced by the chunking pipeline",
+        help="Path to output.json produced by the chunking pipeline",
     )
     return parser.parse_args(argv)
 

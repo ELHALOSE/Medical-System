@@ -1,3 +1,0 @@
-[console_scripts]
-retrieval-build = cli.build_index:build_index
-retrieval-query = cli.query_cli:_parse_args

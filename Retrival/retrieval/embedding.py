@@ -2,29 +2,30 @@
 embedding.py
 ------------
 Thin wrapper around sentence-transformers so the rest of the package depends
-on this interface, not on the library directly - swapping the embedding
-model later means changing one line in config.py, not hunting through the
-codebase.
+on this interface, not on the library directly.
 """
 
 from __future__ import annotations
+
+from pathlib import Path
 
 from sentence_transformers import SentenceTransformer
 
 
 class Embedder:
-    def __init__(self, model_id: str, batch_size: int = 64):
+    def __init__(self, model_id: str, cache_dir: str | None = None, batch_size: int = 64):
         self.model_id = model_id
         self.batch_size = batch_size
-        self._model = SentenceTransformer(model_id)
+        if cache_dir:
+            Path(cache_dir).mkdir(parents=True, exist_ok=True)
+        self._model = SentenceTransformer(model_id, cache_folder=cache_dir)
 
     @property
     def dimension(self) -> int:
         return self._model.get_sentence_embedding_dimension()
 
     def embed(self, texts: list[str], show_progress: bool = False) -> list[list[float]]:
-        """Batch-embed texts. Normalized so cosine similarity == dot product,
-        which is what the vector store's distance metric assumes."""
+        """Batch-embed texts. Normalized so cosine similarity == dot product."""
         embeddings = self._model.encode(
             texts,
             batch_size=self.batch_size,
