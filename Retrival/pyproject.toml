@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "retrieval"
+version = "0.1.0"
+description = "RAG retrieval pipeline for medical/hypertension guidelines"
+requires-python = ">=3.10"
+dependencies = [
+    "sentence-transformers>=3.0.0",
+    "chromadb>=0.5.0",
+    "rank_bm25>=0.2.2",
+]
+
+[tool.setuptools.packages.find]
+include = ["retrieval*", "cli*"]

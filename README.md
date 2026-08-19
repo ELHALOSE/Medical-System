@@ -1,6 +1,6 @@
 # 🏥 Clinical AI Medical RAG System
 
-> **An End-to-End, Open-Source, Evidence-Grounded Medical Question Answering & Evaluation Framework**
+**An End-to-End, Open-Source, Evidence-Grounded Medical Question Answering & Evaluation Framework**
 
 A modular **Medical Retrieval-Augmented Generation (RAG)** system designed for answering clinical questions using trusted medical documents and clinical practice guidelines.
 
@@ -24,7 +24,7 @@ The goal of this project is to build a medical question-answering system that pr
 
 The system follows the principle:
 
-> **Retrieve → Rerank → Construct Context → Generate → Evaluate**
+**Retrieve → Rerank → Construct Context → Generate → Evaluate**
 
 The generated answer should be supported by the retrieved medical evidence and include references to the source material whenever applicable.
 
