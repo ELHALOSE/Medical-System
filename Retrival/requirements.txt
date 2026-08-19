@@ -1,0 +1,13 @@
+# Embedding
+sentence-transformers>=3.0.0
+
+# VectorDB
+chromadb>=0.5.0
+
+# Search
+rank_bm25>=0.2.2
+
+# Reranker
+# (CrossEncoder ships inside sentence-transformers, no extra package needed)
+
+pytest>=8.0.0
