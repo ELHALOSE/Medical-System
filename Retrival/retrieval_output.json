@@ -1,0 +1,50 @@
+{
+  "query": "target blood pressure for adults",
+  "results": [
+    {
+      "rank": 1,
+      "score": 0.9732032418251038,
+      "chunk_id": "261",
+      "title": "P Adult men and women with HTN requiring pharmacological intervention",
+      "page_start": 59,
+      "page_end": 59,
+      "text": "Adverse effects\nO Patient satisfaction Adherence BP level/change\nNumber of antihypertensive medications\ns Based on different effect modifiers such as: estimated cardiovascular risk; pre-existing CAD, stroke, diabetes, age, sex, chronic kidney disease and race/ethnicity, level of baseline BP\n9 What target blood pressure should pharmacological treatment aim to achieve?\nP Adult men and women\nSpecific systolic and diastolic blood pressure targets:\nI\nsystolic (mmHg): <120, <130, <140, <150 diastolic (mmHg): <70, <80, <90\nC Systolic or diastolic blood pressure targets that are higher than the intervention targets"
+    },
+    {
+      "rank": 2,
+      "score": 0.9628427028656006,
+      "chunk_id": "125",
+      "title": "6. RECOMMENDATION ON TARGET BLOOD PRESSURES",
+      "page_start": 28,
+      "page_end": 28,
+      "text": "--- PAGE 28 ---\n3.6 Target blood pressure\n6. RECOMMENDATION ON TARGET BLOOD PRESSURES\nWHO recommends a target blood pressure treatment goal of <140/90 mmHg in all patients with hypertension without comorbidities.\nStrong recommendation, moderate-certainty evidence\nWHO recommends a target systolic blood pressure treatment goal of <130 mmHg in patients with hypertension and known cardiovascular disease (CVD).\nStrong recommendation, moderate-certainty evidence\nWHO suggests a target systolic blood pressure treatment goal of <130 mmHg in high-risk patients with hypertension (those with high CVD risk, diabetes mellitus, chronic kidney disease).\nConditional recommendation, moderate-certainty evidence\nEvidence and rationale"
+    },
+    {
+      "rank": 3,
+      "score": 0.9614840745925903,
+      "chunk_id": "26",
+      "title": "Conditional recommendation, moderate- to high-certainty evidence",
+      "page_start": 10,
+      "page_end": 10,
+      "text": "Conditional recommendation, moderate-certainty evidence\n6. RECOMMENDATIONS ON TARGET BLOOD PRESSURE\nWHO recommends a target blood pressure treatment goal of <140/90 mmHg in all patients with hypertension without comorbidities.\nStrong recommendation, moderate-certainty evidence WHO recommends a target systolic blood pressure treatment goal of <130 mmHg in patients with hypertension and known cardiovascular disease (CVD)."
+    },
+    {
+      "rank": 4,
+      "score": 0.9081391096115112,
+      "chunk_id": "27",
+      "title": "Strong recommendation, moderate-certainty evidence WHO recommends a target systolic blood pressure treatment goal of <130 mmHg in patients with hypertension and known cardiovascular disease (CVD).",
+      "page_start": 11,
+      "page_end": 11,
+      "text": "--- PAGE 11 ---\nStrong recommendation, moderate-certainty evidence WHO recommends a target systolic blood pressure treatment goal of <130 mmHg in patients with hypertension and known cardiovascular disease (CVD).\nStrong recommendation, moderate-certainty evidence\nWHO suggests a target systolic blood pressure treatment goal of <130 mmHg in high-risk patients with hypertension (those with high CVD risk, diabetes mellitus, chronic kidney disease).\nConditional recommendation, moderate-certainty evidence\n7. RECOMMENDATIONS ON FREQUENCY OF ASSESSMENT\nWHO suggests a monthly follow up after initiation or a change in antihypertensive medications until patients reach target.\nConditional recommendation, low-certainty evidence"
+    },
+    {
+      "rank": 5,
+      "score": 0.7476771473884583,
+      "chunk_id": "36",
+      "title": "Scope and objectives of the hypertension guideline",
+      "page_start": 13,
+      "page_end": 13,
+      "text": "Scope and objectives of the hypertension guideline\nThe 2021 WHO hypertension guideline aims to provide the most current and relevant evidencebased global public health guidance on the initiation of treatment (with pharmacological agents) for hypertension in adults. The recommendations target the general adult, non-pregnant, hypertensive population."
+    }
+  ]
+}
