@@ -16,11 +16,11 @@ from retrieval.schemas import Chunk
 
 
 class Reranker:
-    def __init__(self, model_id: str, cache_dir: str | None = None):
+    def __init__(self, model_id: str, cache_dir: str | None = None, device: str | None = None):
         self.model_id = model_id
         if cache_dir:
             Path(cache_dir).mkdir(parents=True, exist_ok=True)
-        self._model = CrossEncoder(model_id, cache_dir=cache_dir)
+        self._model = CrossEncoder(model_id, cache_dir=cache_dir, device=device)
 
     def rerank(self, query: str, candidates: list[Chunk], top_k: int) -> list[tuple[Chunk, float]]:
         if not candidates:

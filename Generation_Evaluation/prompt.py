@@ -1,90 +1,95 @@
+from typing import Any
+
+
+SYSTEM_PROMPT = """
+You are a medical question-answering assistant.
+
+Answer the question using ONLY the provided medical documents.
+
+Rules:
+1. Use only information supported by the retrieved documents.
+2. Do not invent medical facts.
+3. If the answer is not found in the documents, say:
+   "The answer was not found in the provided documents."
+4. Cite the supporting document using [Doc-1], [Doc-2], etc.
+5. Keep the answer concise and clinically precise.
+6. Do not provide unsupported diagnoses or treatment recommendations.
 """
-Task 1: Prompt Engineering & Clinical Guardrails
-Author: Meriam
-Description: Handcrafted medical prompts with strict zero-hallucination guardrails,
-             mandatory citations [Doc-X], refusal protocol, and emergency triage.
-"""
-
-from typing import Dict, List, Optional
 
 
-class MedicalPromptEngineer:
-    """
-    Constructs clinical-grade prompts for Open-Source LLMs.
-    """
+def build_prompt(
+    query: str,
+    retrieved_chunks: list[dict[str, Any]],
+    chat_history: list[dict[str, str]] | None = None,
+) -> list[dict[str, str]]:
 
-    DEFAULT_SYSTEM_PROMPT = (
-        "You are an expert Clinical AI Medical Assistant specializing in evidence-based medicine.\n"
-        "Your duty is to assist healthcare providers and patients by answering medical inquiries "
-        "ACCURATELY, SAFELY, and CONCISELY based EXCLUSIVELY on the provided clinical documents.\n\n"
-        "### CLINICAL OPERATING GUIDELINES ###\n"
-        "1. STRICT GROUNDEDNESS:\n"
-        "   - Use ONLY the facts provided in the <context> section.\n"
-        "   - Do NOT assume, extrapolate, or use outside medical knowledge not verified in the context.\n"
-        "   - If the context does not contain sufficient information, state: "
-        "'Based on the provided medical reference documents, there is insufficient evidence to answer this question.'\n\n"
-        "2. MANDATORY CITATION PROTOCOL:\n"
-        "   - Every claim, dosage, or clinical threshold MUST be cited using [Doc-1], [Doc-2], etc.\n\n"
-        "3. MEDICAL DISCLAIMER & EMERGENCY TRIAGE:\n"
-        "   - If the query describes acute life-threatening symptoms (e.g. crushing chest pain, loss of consciousness, stroke symptoms), "
-        "immediately advise seeking emergency medical attention (Call 911 / 123) BEFORE providing educational info.\n"
-        "   - Always conclude responses with a concise professional medical disclaimer.\n\n"
-        "4. TONE & STRUCTURE:\n"
-        "   - Professional, empathetic, objective, and clinically precise."
-    )
+    context_parts = []
 
-    FEW_SHOT_EXAMPLES = [
-        {
-            "query": "What is the systolic blood pressure threshold for starting pharmacological treatment?",
-            "context": (
-                "<context>\n"
-                "[Doc-1 | Source: WHO_Hypertension_Guideline.pdf | Page: 14]\n"
-                "WHO recommends initiating pharmacological antihypertensive treatment in individuals with a confirmed diagnosis "
-                "of hypertension and systolic blood pressure >= 140 mmHg or diastolic blood pressure >= 90 mmHg.\n"
-                "</context>"
-            ),
-            "response": (
-                "According to clinical guidelines:\n\n"
-                "• **Threshold:** Pharmacological treatment is recommended when **Systolic BP >= 140 mmHg** "
-                "or **Diastolic BP >= 90 mmHg** in confirmed hypertension [Doc-1].\n\n"
-                "*Disclaimer: This information is for clinical reference only. Consult a physician for direct medical care.*"
-            )
-        }
-    ]
+    for i, chunk in enumerate(retrieved_chunks, start=1):
 
-    def __init__(
-        self,
-        system_prompt: Optional[str] = None,
-        include_few_shot: bool = True
-    ):
-        self.system_prompt = system_prompt or self.DEFAULT_SYSTEM_PROMPT
-        self.include_few_shot = include_few_shot
+        metadata = chunk.get("metadata") or {}
 
-    def build_user_prompt(self, query: str, formatted_context: str) -> str:
-        return (
-            f"Verified Medical Reference Documents:\n\n"
-            f"{formatted_context}\n\n"
-            f"### CLINICIAN / PATIENT QUESTION ###\n"
-            f"Question: {query}\n\n"
-            f"Provide a strictly grounded clinical answer citing the documents ([Doc-X]) for all claims."
+        source = (
+            metadata.get("source_doc")
+            or metadata.get("title")
+            or "Unknown document"
         )
 
-    def format_chat_messages(
-        self,
-        query: str,
-        formatted_context: str,
-        chat_history: Optional[List[Dict[str, str]]] = None
-    ) -> List[Dict[str, str]]:
-        messages: List[Dict[str, str]] = [{"role": "system", "content": self.system_prompt}]
+        page_start = metadata.get("page_start")
+        page_end = metadata.get("page_end")
 
-        if self.include_few_shot:
-            for ex in self.FEW_SHOT_EXAMPLES:
-                messages.append({"role": "user", "content": f"{ex['context']}\n\nQuestion: {ex['query']}"})
-                messages.append({"role": "assistant", "content": ex['response']})
+        if page_start and page_end:
+            page_info = f"Pages: {page_start}-{page_end}"
+        elif page_start:
+            page_info = f"Page: {page_start}"
+        else:
+            page_info = ""
 
-        if chat_history:
-            for turn in chat_history:
-                messages.append({"role": turn.get("role", "user"), "content": turn.get("content", "")})
+        context_parts.append(
+            f"[Doc-{i}]\n"
+            f"Source: {source}\n"
+            f"{page_info}\n"
+            f"Content:\n{chunk.get('text', '')}"
+        )
 
-        messages.append({"role": "user", "content": self.build_user_prompt(query, formatted_context)})
-        return messages
+    context = "\n\n".join(context_parts)
+
+    user_prompt = f"""
+Medical Documents:
+
+{context}
+"""
+
+    if chat_history:
+        history = "\n".join(
+            f"{message.get('role', 'user')}: "
+            f"{message.get('content', '')}"
+            for message in chat_history
+        )
+
+        user_prompt += f"""
+
+Conversation History:
+
+{history}
+"""
+
+    user_prompt += f"""
+
+Question:
+
+{query}
+
+Answer:
+"""
+
+    return [
+        {
+            "role": "system",
+            "content": SYSTEM_PROMPT.strip(),
+        },
+        {
+            "role": "user",
+            "content": user_prompt.strip(),
+        },
+    ]

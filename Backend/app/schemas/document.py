@@ -11,3 +11,10 @@ class DocumentResponse(BaseModel):
     uploaded_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class DocumentProcessResponse(BaseModel):
+    document: DocumentResponse
+    chunk_count: int
+    page_count: int
+    table_count: int

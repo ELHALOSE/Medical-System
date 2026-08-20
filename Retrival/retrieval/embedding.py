@@ -13,12 +13,18 @@ from sentence_transformers import SentenceTransformer
 
 
 class Embedder:
-    def __init__(self, model_id: str, cache_dir: str | None = None, batch_size: int = 64):
+    def __init__(
+        self,
+        model_id: str,
+        cache_dir: str | None = None,
+        batch_size: int = 64,
+        device: str | None = None,
+    ):
         self.model_id = model_id
         self.batch_size = batch_size
         if cache_dir:
             Path(cache_dir).mkdir(parents=True, exist_ok=True)
-        self._model = SentenceTransformer(model_id, cache_folder=cache_dir)
+        self._model = SentenceTransformer(model_id, cache_folder=cache_dir, device=device)
 
     @property
     def dimension(self) -> int:
