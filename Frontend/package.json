@@ -1,0 +1,10 @@
+{
+  "name": "medical-rag-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "python3 -m http.server 5173",
+    "build": "node scripts/validate-static-site.js",
+    "preview": "python3 -m http.server 4173"
+  }
+}

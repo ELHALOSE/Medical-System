@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Simple Medical RAG dashboard for document upload and evidence-grounded Q&A." />
+    <title>DocterAI</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#top" aria-label="Medical RAG home">
+          <span class="brand-icon">+</span>
+          <span>DocterAI</span>
+        </a>
+        <nav aria-label="Main navigation">
+          <a href="#documents">Documents</a>
+          <a href="#assistant">Assistant</a>
+          <a href="#answer">Answer</a>
+        </nav>
+      </header>
+
+      <section class="hero" id="top">
+        <div class="hero-copy">
+          <span class="badge">Evidence-grounded medical assistant</span>
+          <h1>Ask clinical questions from your trusted documents.</h1>
+          <p>
+            Upload a guideline PDF, process it into searchable chunks, then ask your medical question and review the answer with retrieved evidence.
+          </p>
+          <div class="hero-actions">
+            <a class="primary-link" href="#assistant">Ask a question</a>
+            <a class="ghost-link" href="#documents">Upload document</a>
+          </div>
+        </div>
+        <aside class="hero-card" aria-label="RAG workflow summary">
+          <div><strong>1</strong><span>Upload PDF</span></div>
+          <div><strong>2</strong><span>Process chunks</span></div>
+          <div><strong>3</strong><span>Retrieve evidence</span></div>
+          <div><strong>4</strong><span>Generate answer</span></div>
+        </aside>
+      </section>
+
+      <section class="status-banner" id="status-banner" role="status" hidden></section>
+
+      <section class="dashboard">
+        <section class="panel connect-panel" id="connect">
+          <div class="panel-heading">
+            <span class="panel-kicker">Connection</span>
+            <h2>Backend settings</h2>
+          </div>
+          <label for="token">Bearer token</label>
+          <input id="token" type="password" placeholder="Paste token from /auth/login" autocomplete="off" />
+          <small id="api-base-label"></small>
+        </section>
+
+        <section class="panel" id="documents">
+          <div class="panel-heading">
+            <span class="panel-kicker">Documents</span>
+            <h2>Upload & process</h2>
+          </div>
+          <form id="upload-form" class="stack">
+            <label class="file-box" for="medical-file">
+              <span class="file-icon">PDF</span>
+              <strong id="file-name">Choose a medical PDF</strong>
+              <small>Used by /documents/upload</small>
+            </label>
+            <input id="medical-file" type="file" accept="application/pdf" />
+            <button type="submit" id="upload-button">Upload document</button>
+          </form>
+
+          <div class="stack process-box">
+            <label for="document-id">Document ID</label>
+            <input id="document-id" placeholder="Auto-filled after upload" />
+            <button class="secondary-button" type="button" id="process-button">Process document</button>
+          </div>
+        </section>
+
+        <section class="panel assistant-panel" id="assistant">
+          <div class="panel-heading">
+            <span class="panel-kicker">Assistant</span>
+            <h2>Ask a question</h2>
+          </div>
+          <form id="question-form" class="stack">
+            <label for="question">Clinical question</label>
+            <textarea id="question" rows="7">What lifestyle changes help manage hypertension?</textarea>
+            <div class="field-grid">
+              <label>Top K<input id="top-k" type="number" min="1" max="20" value="5" /></label>
+              <label>Temperature<input id="temperature" type="number" min="0" max="2" step="0.1" value="0.1" /></label>
+            </div>
+            <button type="submit" id="answer-button">Generate answer</button>
+          </form>
+        </section>
+      </section>
+
+      <section class="results" id="answer" aria-live="polite">
+        <article class="answer-card">
+          <div class="panel-heading">
+            <span class="panel-kicker">Answer</span>
+            <h2 id="answer-title">Your answer will appear here</h2>
+          </div>
+          <p id="answer-text">Ask a question to see the generated response, evaluation details, and retrieved evidence.</p>
+          <div class="score-row" id="score-row"></div>
+        </article>
+
+        <aside class="sources-card">
+          <div class="panel-heading">
+            <span class="panel-kicker">Evidence</span>
+            <h2>Retrieved chunks</h2>
+          </div>
+          <div id="sources-list"><p class="muted">No evidence retrieved yet.</p></div>
+        </aside>
+      </section>
+    </main>
+
+    <script src="./src/main.js" type="module"></script>
+  </body>
+</html>
