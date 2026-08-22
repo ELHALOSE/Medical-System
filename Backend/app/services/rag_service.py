@@ -18,6 +18,7 @@ from app.services.rag_index_service import (
     get_vector_store,
     to_retrieval_chunk,
 )
+from app.repositories.retrieval_result import RetrievalResultRepository
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -32,6 +33,7 @@ class RAGService:
         self.db = db
         self.answer_repository = AnswerRepository(db) if db else None
         self.chunk_repository = ChunkRepository(db) if db else None
+        self.retrieval_result_repository = RetrievalResultRepository(db) if db else None
 
     def retrieve(
         self,
@@ -97,6 +99,10 @@ class RAGService:
 
         try:
             chunks = self.retrieve(query=query, top_k=top_k, user_id=user_id)
+            self.retrieval_result_repository.create_for_answer(
+                answer_id=answer_row.id,
+                chunks=chunks,
+            )
             generation_result = self.generate(
                 query=query,
                 chunks=chunks,
