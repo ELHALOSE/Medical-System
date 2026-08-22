@@ -1,7 +1,13 @@
-const API_BASE_URL = window.MEDICAL_RAG_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = window.MEDICAL_RAG_API_BASE_URL || 'http://localhost:5000';
 
 const elements = {
   token: document.querySelector('#token'),
+  email: document.querySelector('#email'),
+  password: document.querySelector('#password'),
+  authForm: document.querySelector('#auth-form'),
+  loginButton: document.querySelector('#login-button'),
+  registerButton: document.querySelector('#register-button'),
+  logoutButton: document.querySelector('#logout-button'),
   fileInput: document.querySelector('#medical-file'),
   fileName: document.querySelector('#file-name'),
   documentId: document.querySelector('#document-id'),
@@ -22,18 +28,35 @@ const elements = {
 };
 
 elements.apiBaseLabel.textContent = `API base URL: ${API_BASE_URL}`;
+elements.token.value = sessionStorage.getItem('medical-rag-token') || '';
+updateAuthControls();
+
 
 function authHeaders() {
   return elements.token.value.trim() ? { Authorization: `Bearer ${elements.token.value.trim()}` } : {};
 }
 
 async function request(path, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, options);
+  let response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, options);
+  } catch {
+    throw new Error(`Cannot reach the backend at ${API_BASE_URL}. Start the API and verify its URL.`);
+  }
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
     throw new Error(body.detail || `Request failed with status ${response.status}`);
   }
   return body;
+}
+async function checkBackendConnection() {
+  try {
+    await request('/health');
+    elements.apiBaseLabel.textContent = `Backend connected: ${API_BASE_URL}`;
+  } catch (error) {
+    elements.apiBaseLabel.textContent = `Backend unavailable: ${API_BASE_URL}`;
+    setStatus(error.message, 'error');
+  }
 }
 
 function setStatus(message, type = 'success') {
@@ -52,6 +75,76 @@ function setLoading(kind, active) {
   button.disabled = active;
   button.textContent = active ? loadingText : readyText;
 }
+function updateAuthControls() {
+  const isAuthenticated = Boolean(elements.token.value.trim());
+  elements.logoutButton.hidden = !isAuthenticated;
+  elements.loginButton.textContent = isAuthenticated ? 'Signed in' : 'Sign in';
+  elements.loginButton.disabled = isAuthenticated;
+  elements.registerButton.disabled = isAuthenticated;
+}
+
+async function authenticate(path) {
+  const email = elements.email.value.trim();
+  const password = elements.password.value;
+  if (!email || !password) {
+    setStatus('Enter your email and password first.', 'error');
+    return;
+  }
+
+  const actionButton = path === '/auth/login' ? elements.loginButton : elements.registerButton;
+  actionButton.disabled = true;
+  setStatus('');
+  try {
+    if (path === '/auth/register') {
+      await request(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+    }
+    const token = await request('/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    elements.token.value = token.access_token;
+    sessionStorage.setItem('medical-rag-token', token.access_token);
+    elements.password.value = '';
+    updateAuthControls();
+    setStatus(path === '/auth/register' ? 'Account created and signed in.' : 'Signed in successfully.');
+  } catch (error) {
+    setStatus(error.message, 'error');
+  } finally {
+    if (!elements.token.value.trim()) {
+      actionButton.disabled = false;
+    }
+  }
+}
+
+elements.authForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  await authenticate('/auth/login');
+});
+
+elements.registerButton.addEventListener('click', async () => {
+  await authenticate('/auth/register');
+});
+
+elements.logoutButton.addEventListener('click', () => {
+  elements.token.value = '';
+  sessionStorage.removeItem('medical-rag-token');
+  updateAuthControls();
+  setStatus('Signed out.');
+});
+
+elements.token.addEventListener('input', () => {
+  if (elements.token.value.trim()) {
+    sessionStorage.setItem('medical-rag-token', elements.token.value.trim());
+  } else {
+    sessionStorage.removeItem('medical-rag-token');
+  }
+  updateAuthControls();
+});
 
 elements.fileInput.addEventListener('change', () => {
   elements.fileName.textContent = elements.fileInput.files?.[0]?.name || 'Choose guideline PDF';

@@ -47,10 +47,19 @@
         <section class="panel connect-panel" id="connect">
           <div class="panel-heading">
             <span class="panel-kicker">Connection</span>
-            <h2>Backend settings</h2>
+            <h2>Sign in to the backend</h2>
           </div>
+          <form id="auth-form" class="auth-form">
+            <label for="email">Email<input id="email" type="email" placeholder="doctor@example.com" autocomplete="email" required /></label>
+            <label for="password">Password<input id="password" type="password" placeholder="At least 8 characters" autocomplete="current-password" required /></label>
+            <div class="auth-actions">
+              <button type="submit" id="login-button">Sign in</button>
+              <button class="secondary-button" type="button" id="register-button">Create account</button>
+              <button class="text-button" type="button" id="logout-button" hidden>Sign out</button>
+            </div>
+          </form>
           <label for="token">Bearer token</label>
-          <input id="token" type="password" placeholder="Paste token from /auth/login" autocomplete="off" />
+          <input id="token" type="password" placeholder="Sign in or paste a token" autocomplete="off" />
           <small id="api-base-label"></small>
         </section>
 

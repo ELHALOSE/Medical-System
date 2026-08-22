@@ -6,6 +6,7 @@ A dependency-free static frontend for the Medical RAG backend. It combines a mod
 
 - Hero section styled like a modern medical clinic website.
 - Backend token connection field for authenticated FastAPI requests.
+- Built-in account creation and sign-in flow that stores the access token for the browser session.
 - PDF upload flow using `POST /documents/upload`.
 - Document processing action using `POST /documents/{document_id}/process`.
 - Clinical Q&A panel using `POST /rag/answer`.
@@ -41,10 +42,49 @@ That command runs the same Python static server behind the scenes.
 
 ## Backend URL
 
-The UI defaults to `http://localhost:8000` for the FastAPI backend. To override it without rebuilding, set this before `src/main.js` runs:
+The UI defaults to `http://localhost:5000` for the FastAPI backend. To override it without rebuilding, set this before `src/main.js` runs:
 
 ```html
-<script>window.MEDICAL_RAG_API_BASE_URL = 'http://localhost:8000';</script>
+<script>window.MEDICAL_RAG_API_BASE_URL = 'http://localhost:5000';</script>
+```
+
+## Run the backend and database
+
+Serving the static frontend alone does **not** start the API or PostgreSQL, so
+form entries cannot be saved until the following services are running. In a
+second terminal, from the repository root:
+
+```bash
+cd Backend
+cp .env.example .env
+# Edit .env and set DATABASE_URL, SECRET_KEY, ALGORITHM, and ACCESS_TOKEN_EXPIRE_MINUTES.
+docker compose up -d postgres
+alembic upgrade head
+uvicorn app.main:app --reload --host 0.0.0.0 --port 5000
+```
+
+For the PostgreSQL container in `docker-compose.yml`, use the following local
+database URL in `Backend/.env`:
+
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5433/medical_rag
+SECRET_KEY=replace-with-a-long-random-secret
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+```
+
+When the page opens, the connection label reports whether `GET /health` can
+reach both the API and its database. If it reports **Backend unavailable**,
+resolve that before attempting sign-in or data uploads.
+
+## Backend CORS
+
+The backend accepts requests from the default frontend development URLs
+`http://localhost:5173` and `http://127.0.0.1:5173`. To deploy the frontend at
+another origin, set `CORS_ORIGINS` in `Backend/.env` to a comma-separated list:
+
+```env
+CORS_ORIGINS=https://medical.example.com
 ```
 
 ## Validation
@@ -81,4 +121,4 @@ http://localhost:5173/
 http://localhost:5173/src/styles.css
 ```
 
-If that URL does not show CSS code, the server is not running from the `Frontend` directory. Restart it from the correct directory and hard refresh the page with 
+If that URL does not show CSS code, the server is not running from the `Frontend` directory. Restart it from the correct directory and hard refresh the page with
